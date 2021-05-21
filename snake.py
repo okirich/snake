@@ -1,14 +1,21 @@
 import pygame,time,os 
 from random import *
 
+from pygame import color
+
 pygame.init()
 
 red = (255,0,0)
 back = (255,247,0)
+blue = (204,255,255)
+white = (255,255,255)
 mw = pygame.display.set_mode((500,500))
 
 clock = pygame.time.Clock()
 
+
+size_block = 50
+count_blocks = 100
 # необходимые классы
 class Area():
     def __init__(self,x=0,y=0,width=10,height=10,color=None):
@@ -38,6 +45,10 @@ class Picture(Area):
     def draw(self):
         mw.blit(self.image,(self.rect.x,self.rect.y))
 
+    def redraw(self,nf,w,h):
+        self.image = pygame.image.load(nf)
+        self.image = pygame.transform.scale(self.image,(w,h))
+
 class Label(Area):
     def set_text(self, text, fsize=12, text_color=(0, 0, 0)):
         self.image = pygame.font.SysFont('verdana', fsize).render(text, True, text_color)
@@ -62,17 +73,17 @@ speed_y = 0
 end = False
 apple_spawned = False
 direction = 0
+prev = 0
 x_k = 100
 y_k = 100
-
 
 while not end :
     apple.fill()
     # создание яблока
     if not apple_spawned or python.rect.colliderect(apple.rect):
 
-        x_k = randint(50,400)
-        y_k = randint(50,450)
+        x_k = randint(0,9)*50
+        y_k = randint(0,9)*50
 
         apple.rect.x = x_k
         apple.rect.y = y_k
@@ -80,36 +91,51 @@ while not end :
         apple_spawned = True
     # обработка стрелок
     for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            end = True
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT and direction != 'left':
                 direction = 'right'
                 speed_x = 5
                 speed_y = 0
-                python.image = pygame.image.load(head_r) 
+                python.redraw(head_r,50,50)
             if event.key == pygame.K_LEFT and direction != 'right':
                 direction = 'left'
                 speed_x = -5
                 speed_y = 0
-                python.image = pygame.image.load(head_l)
+                python.redraw(head_l,50,50)
             if event.key == pygame.K_DOWN and direction != 'up':
                 direction = 'down'
                 speed_x = 0
                 speed_y = 5
-                python.image = pygame.image.load(head_d)
+                python.redraw(head_d,50,50)
             if event.key == pygame.K_UP and direction != 'down':
                 direction = 'up'
                 speed_x = 0
                 speed_y = -5
-                python.image = pygame.image.load(head_u)
+                python.redraw(head_u,50,50)
     # движение змейки
     python.rect.x += speed_x
     python.rect.y += speed_y
     
-    if python.rect.x > 500 or python.rect.x < 0 or python.rect.y > 500 or python.rect.y < 0 :
+    if python.rect.x > 470 or python.rect.x < -20 or python.rect.y > 470 or python.rect.y < -20 :
 
         end = True
 
     mw.fill(back)
+
+    # игровое поле
+
+    for row in range(count_blocks):
+        for column in range(count_blocks):
+            if (row + column)%2 == 0:
+                board_color = blue
+            else:
+                board_color = white
+            pygame.draw.rect(mw,board_color,[   0 + column * size_block,\
+                                                0 + row * size_block,\
+                                                size_block,size_block   ] )
+
     python.draw()
     apple.draw()
     pygame.display.update()
