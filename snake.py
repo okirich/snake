@@ -1,8 +1,6 @@
 import pygame,time,os 
 from random import *
 
-from pygame import color
-
 pygame.init()
 
 red = (255,0,0)
@@ -56,6 +54,7 @@ class Label(Area):
     def draw(self, shift_x=0, shift_y=0):
         self.fill()
         mw.blit(self.image, (self.rect.x + shift_x, self.rect.y + shift_y))
+
 # необходимые спрайты
 apple = os.path.join(os.getcwd(),'Graphics','apple.png')
 
@@ -65,9 +64,14 @@ head_d = os.path.join(os.getcwd(),'Graphics','head_down.png')
 head_u = os.path.join(os.getcwd(),'Graphics','head_up.png')
 
 apple = Picture(apple,0, 0, 50, 50)
+
 python = Picture(head_u,200,200, 50, 50)
+body = Picture(head_u,200,200, 50, 50)
+tail = Picture(head_u,200,200, 50, 50)
 
 # глобальные переменные
+snake = [python]
+
 speed_x = 0
 speed_y = 0
 end = False
@@ -79,6 +83,9 @@ y_k = 100
 
 while not end :
     apple.fill()
+    if snake[0].rect.colliderect(apple.rect):
+        snake.append(tail)
+
     # создание яблока
     if not apple_spawned or python.rect.colliderect(apple.rect):
 
@@ -96,28 +103,31 @@ while not end :
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT and direction != 'left':
                 direction = 'right'
-                speed_x = 5
+                speed_x = 50
                 speed_y = 0
                 python.redraw(head_r,50,50)
             if event.key == pygame.K_LEFT and direction != 'right':
                 direction = 'left'
-                speed_x = -5
+                speed_x = -50
                 speed_y = 0
                 python.redraw(head_l,50,50)
             if event.key == pygame.K_DOWN and direction != 'up':
                 direction = 'down'
                 speed_x = 0
-                speed_y = 5
+                speed_y = 50
                 python.redraw(head_d,50,50)
             if event.key == pygame.K_UP and direction != 'down':
                 direction = 'up'
                 speed_x = 0
-                speed_y = -5
+                speed_y = -50
                 python.redraw(head_u,50,50)
     # движение змейки
-    python.rect.x += speed_x
-    python.rect.y += speed_y
-    
+    for i in range(len(snake)-1,0,-1):
+        snake[i].rect.x = snake[i-1].rect.x
+        snake[i].rect.y = snake[i-1].rect.y 
+    snake[0].rect.x += speed_x
+    snake[0].rect.y += speed_y
+
     if python.rect.x > 470 or python.rect.x < -20 or python.rect.y > 470 or python.rect.y < -20 :
 
         end = True
@@ -135,8 +145,8 @@ while not end :
             pygame.draw.rect(mw,board_color,[   0 + column * size_block,\
                                                 0 + row * size_block,\
                                                 size_block,size_block   ] )
-
-    python.draw()
+    for elem in snake:
+        elem.draw()
     apple.draw()
     pygame.display.update()
-    clock.tick(40)
+    clock.tick(4)
