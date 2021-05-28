@@ -62,12 +62,11 @@ head_r = os.path.join(os.getcwd(),'Graphics','head_right.png')
 head_l = os.path.join(os.getcwd(),'Graphics','head_left.png')
 head_d = os.path.join(os.getcwd(),'Graphics','head_down.png')
 head_u = os.path.join(os.getcwd(),'Graphics','head_up.png')
+body = os.path.join(os.getcwd(),'Graphics','body.png')
 
 apple = Picture(apple,0, 0, 50, 50)
 
 python = Picture(head_u,200,200, 50, 50)
-body = Picture(head_u,200,200, 50, 50)
-tail = Picture(head_u,200,200, 50, 50)
 
 # глобальные переменные
 snake = [python]
@@ -83,8 +82,9 @@ y_k = 100
 
 while not end :
     apple.fill()
+    #удлинение змеи
     if snake[0].rect.colliderect(apple.rect):
-        snake.append(tail)
+        snake.append(Picture(body,200,200, 50, 50))
 
     # создание яблока
     if not apple_spawned or python.rect.colliderect(apple.rect):
@@ -131,6 +131,10 @@ while not end :
     if python.rect.x > 470 or python.rect.x < -20 or python.rect.y > 470 or python.rect.y < -20 :
 
         end = True
+
+    for i in range(1,len(snake)):
+        if snake[0].colliderect(snake[i].rect):
+            end = True
 
     mw.fill(back)
 
